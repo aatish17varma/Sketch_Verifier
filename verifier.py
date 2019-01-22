@@ -1,6 +1,6 @@
 import sys
-
-#requirement. a) function declarations must have the beginning paranthesis on the same line as the name of the function, b) functions have same number and type of innput parameters
+#Run program : python3 verifier.py [first-program] [second-program]
+#Requirements a) function declarations must have the beginning paranthesis on the same line as the name of the function, b) functions have same number and type of innput parameters, c) only comparing two functions
 all_holes = {}
 inputs = []
 new_function_headers = []
@@ -29,7 +29,8 @@ for i in range(1, len(sys.argv)):
             elif "assert" not in line: #print rest of function
                 print(line)
             
-            
+
+
 print("harness void main(")
 for key in all_holes:
     print(key)
@@ -38,7 +39,7 @@ for i in inputs:
 print("){") 
 
 for key, value in all_holes.items():
-    print("assume(",key.split()[1],"< ",int(value) ** 2,")")
+    print("assume(",key.split()[1],"< ", 2 ** int(value),")")
 
 print('\n/*Add transformation statement*/')
 
