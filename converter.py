@@ -4,6 +4,7 @@ import sys
 all_holes = {}
 inputs = []
 new_function_headers = []
+f = open("./verifier.sk", "w");
 for i in range(1, len(sys.argv)):
     types = ["bit", "int", "char", "double", "float"]
     function_holes = {} #hole_name : bit amount 
@@ -25,24 +26,26 @@ for i in range(1, len(sys.argv)):
                     newFunctionLine += (key + ", ")  #make holes input variables 
                 newFunctionLine += line[line.index("(") + 1:line.index(")")] + "){" #close function parameter parenthesis and add bracket
                 new_function_headers.append(newFunctionLine[:len(newFunctionLine) - 1])
-                print(newFunctionLine) 
+                f.write(newFunctionLine + "\n") 
             elif "assert" not in line: #print rest of function
-                print(line)
+                f.write(line + "\n")
             
 
 
-print("harness void main(")
+f.write("harness void main(")
 for key in all_holes:
-    print(key)
+    f.write(key)
 for i in inputs:
-    print(i)
-print("){") 
+    f.write(i)
+f.write("){" + "\n") 
 
 for key, value in all_holes.items():
-    print("assume(",key.split()[1],"< ", 2 ** int(value),")")
+    strn = "assume(" + key.split()[1] + "< " +  str(2 ** int(value)) + ")" + "\n";
+    f.write(strn)
 
-print('\n/*Add transformation statement*/')
+f.write('\n/*Add transformation statement*/\n')
 
-print("assert(", new_function_headers[0][new_function_headers[0].index(" ") : ], "==", new_function_headers[1][new_function_headers[1].index(" ") : ], ");");
+strn = "assert(" + new_function_headers[0][new_function_headers[0].index(" ") : ] +  "==" + new_function_headers[1][new_function_headers[1].index(" ") : ] +  ");"
+f.write(strn + "\n")
 
-print("}")
+f.write("}")

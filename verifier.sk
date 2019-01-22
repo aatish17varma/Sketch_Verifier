@@ -1,0 +1,15 @@
+
+int sketch1(int h1, int h2, int x){
+  return (h1 + h2) * x;
+}
+int sketch2(int h3, int x){
+  return x * h3;
+}
+harness void main(int h1int h2int h3int x){
+assume(h1< 16)
+assume(h2< 16)
+assume(h3< 32)
+
+/*Add transformation statement*/
+assert( sketch1(int h1, int h2, int x)== sketch2(int h3, int x));
+}
