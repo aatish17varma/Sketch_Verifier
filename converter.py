@@ -34,7 +34,7 @@ for i in range(1, len(sys.argv)):
 
 f.write("harness void main(")
 for key in all_holes:
-    f.write(key)
+    f.write(key + ",")
 for i in inputs:
     f.write(i)
 f.write("){" + "\n") 

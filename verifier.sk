@@ -5,7 +5,7 @@ int sketch1(int h1, int h2, int x){
 int sketch2(int h3, int x){
   return x * h3;
 }
-harness void main(int h1int h2int h3int x){
+harness void main(int h1,int h2,int h3,int x){
 assume(h1< 16)
 assume(h2< 16)
 assume(h3< 32)
