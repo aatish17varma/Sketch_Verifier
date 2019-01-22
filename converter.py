@@ -27,7 +27,7 @@ for i in range(1, len(sys.argv)):
                 newFunctionLine += line[line.index("(") + 1:line.index(")")] + "){" #close function parameter parenthesis and add bracket
                 new_function_headers.append(newFunctionLine[:len(newFunctionLine) - 1])
                 f.write(newFunctionLine + "\n") 
-            elif "assert" not in line: #print rest of function
+            elif "assert" not in line: #assert statements should not be printed, print rest of function
                 f.write(line + "\n")
             
 
