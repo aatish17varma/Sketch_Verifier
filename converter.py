@@ -1,6 +1,10 @@
+#Run program : python3 converter.py [first-program] [second-program]
+#Requirements:
+#  a) function declarations must have the beginning paranthesis on the same line as the name of the function,
+#  b) functions have same number and type of innput parameters, 
+#  c) only comparing two functions
+
 import sys
-#Run program : python3 verifier.py [first-program] [second-program]
-#Requirements a) function declarations must have the beginning paranthesis on the same line as the name of the function, b) functions have same number and type of innput parameters, c) only comparing two functions
 all_holes = {}
 inputs = []
 new_function_headers = []
