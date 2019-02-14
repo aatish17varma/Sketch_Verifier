@@ -7,6 +7,7 @@ class ChipmunkAluGenVisitor(instructionVisitor):
     self.mux2Count = 0
     self.relopCount = 0
     self.optCount = 0
+    self.constantCount = 0;
     self.helperFunctionStrings = "\n\n\n"
     self.globalholes = ""
     self.mainFunction = ""
@@ -16,8 +17,11 @@ class ChipmunkAluGenVisitor(instructionVisitor):
     self.mainFunction += "int atom("
     self.visit(ctx.getChild(0))
     self.visit(ctx.getChild(1))
-    self.mainFunction += ") {\n   "
+    self.mainFunction += ") {\n  int old_state;\n "
+
     self.visit(ctx.getChild(2))
+
+    self.mainFunction += "return old_state;"
     self.mainFunction += "\n}"
 
 
@@ -26,12 +30,23 @@ class ChipmunkAluGenVisitor(instructionVisitor):
 
 
   def visitState_vars(self, ctx):
-    self.mainFunction +=  "ref int "
-    self.visit(ctx.getChild(0))
-    self.mainFunction += ','
-    self.mainFunction += "ref int "
-    self.visit(ctx.getChild(1))
+    for i in range(ctx.getChildCount()):
+      self.mainFunction += "ref int "
+      self.visit(ctx.getChild(i))
+      self.mainFunction += ", " 
 
+  def visitPacket_field(self, ctx):
+    self.mainFunction += ctx.getText()
+
+  def visitPacket_fields(self, ctx):
+    for i in range(ctx.getChildCount() - 1):
+      self.mainFunction += "int "
+      self.visit(ctx.getChild(i))
+      self.mainFunction += ", "
+
+    #read the last variable outside for loop to avoid trailing comma
+    self.mainFunction += "int "
+    self.visit(ctx.getChild(ctx.getChildCount() - 1))
 
 
   def visitMux2(self, ctx):
@@ -83,13 +98,17 @@ class ChipmunkAluGenVisitor(instructionVisitor):
   def visitPacketField(self, ctx):
     self.mainFunction += ctx.getText()
     self.visitChildren(ctx)
-  
 
 
   def visitUpdate(self, ctx):
+    self.mainFunction += "old_state = "
+    self.visit(ctx.getChild(0))
+    self.mainFunction += ";"
+    self.mainFunction += "\n"
     self.visit(ctx.getChild(0))
     self.mainFunction += " = "
     self.visit(ctx.getChild(2))
+    self.mainFunction += ";"
 
   def visitGuarded_update(self, ctx):
     self.mainFunction += "if("
@@ -104,9 +123,19 @@ class ChipmunkAluGenVisitor(instructionVisitor):
     self.mainFunction += ctx.getChild(1).getText()
     self.visit(ctx.getChild(2))
 
+
+  def visitConstant(self, ctx):
+    self.mainFunction += "C_" + str(self.constantCount) + "()"
+    self.generateConstants()
+    self.constantCount += 1
+
+  def generateConstants(self):
+    self.helperFunctionStrings += """generator int C_""" + str(self.constantCount) + """() { return ??; } \n\n"""
+
+
   def generate2Mux(self):
     self.helperFunctionStrings += """int Mux2_""" + str(self.mux2Count) +  """(int op1, int op2) {
-    int choice = Mux2_""" + str(self.mux2Count) +  "_hole" """
+    int choice = Mux2_""" + str(self.mux2Count) +  "_hole;" """
     if (choice == 0) return op1;
     else if (choice == 1) return op2;
     } \n\n"""
@@ -115,7 +144,7 @@ class ChipmunkAluGenVisitor(instructionVisitor):
 
   def generate3Mux(self):
     self.helperFunctionStrings += """int Mux3_""" + str(self.mux3Count) + """(int op1, int op2, int op3) {
-    int choice = Mux3_""" + str(self.mux3Count) +  "_hole" """
+    int choice = Mux3_""" + str(self.mux3Count) +  "_hole;" """
     if (choice == 0) return op1;
     else if (choice == 1) return op2;
     else if (choice == 2) return op3;
@@ -127,7 +156,7 @@ class ChipmunkAluGenVisitor(instructionVisitor):
 
   def generateRelOp(self):
     self.helperFunctionStrings += """bit rel_op_""" + str(self.relopCount) + """(int operand1, int operand2) {
-    int opcode = rel_op_""" + str(self.relopCount) + """_hole
+    int opcode = rel_op_""" + str(self.relopCount) + """_hole;
     if (opcode == 0) {
       return operand1 != operand2;
     } else if (opcode == 1) {
@@ -146,7 +175,7 @@ class ChipmunkAluGenVisitor(instructionVisitor):
 
   def generateOpt(self):
     self.helperFunctionStrings += """int Opt_""" + str(self.optCount) + """(int op1) {
-    bit enable = opt_""" + str(self.optCount) + "_hole""" + """
+    bit enable = opt_""" + str(self.optCount) + "_hole;""" + """
     if (! enable) return 0;
     return op1;
     } \n\n"""
